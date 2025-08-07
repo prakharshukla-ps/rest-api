@@ -1,11 +1,11 @@
-import express from "express";
 import cors from "cors";
+import express from "express";
 
 import cartItemRouter from "./src/features/cart/cartItem.routes.js";
 import productRouter from "./src/features/product/product.routes.js";
 import userRouter from "./src/features/user/user.routes.js";
 import jwtAuth from "./src/middlewares/jwtAuth.middleware.js";
-import loggerMiddleware from "./src/middlewares/logger.middleware.js";
+import loggerWinstonMiddleware from "./src/middlewares/logger-winston.middleware.js";
 // import apiDocs from "./swagger.json" with { type: "json" };
 
 const server = express();
@@ -30,7 +30,7 @@ const corsOptions = { origin: "http://localhost:3000" };
 
 server.use(cors(corsOptions));
 
-server.use(loggerMiddleware);
+server.use(loggerWinstonMiddleware);
 
 // server.use("/api-docs", swagger.serve, swagger.setup(apiDocs));
 server.use("/api/products", jwtAuth, productRouter);
