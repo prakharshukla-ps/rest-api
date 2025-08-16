@@ -1,7 +1,4 @@
-import fs from "fs";
 import winston from "winston";
-
-const fsPromise = fs.promises;
 
 const logger = winston.createLogger({
   level: "info",

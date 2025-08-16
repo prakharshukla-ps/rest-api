@@ -1,12 +1,13 @@
 import cors from "cors";
 import express from "express";
 
+import { connectToMongoDB } from "./src/config/mongodb.js";
+import ApplicationError from "./src/error-handler/applicationError.js";
 import cartItemRouter from "./src/features/cart/cartItem.routes.js";
 import productRouter from "./src/features/product/product.routes.js";
 import userRouter from "./src/features/user/user.routes.js";
 import jwtAuth from "./src/middlewares/jwtAuth.middleware.js";
 import loggerWinstonMiddleware from "./src/middlewares/logger-winston.middleware.js";
-import ApplicationError from "./src/error-handler/applicationError.js";
 // import apiDocs from "./swagger.json" with { type: "json" };
 
 const server = express();
@@ -62,4 +63,5 @@ server.use((req, res) =>
 
 server.listen(3000, () => {
   console.log("Server is listening at port 3000");
+  connectToMongoDB();
 });
