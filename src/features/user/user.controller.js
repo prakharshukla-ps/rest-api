@@ -50,4 +50,14 @@ export default class UserController {
       return res.status(400).send("Something went wrong");
     }
   }
+
+  async getAllUsers(req, res) {
+    try {
+      const users = await this.userRepository.getAllUsers();
+      res.status(200).send(users);
+    } catch (error) {
+      console.log(error);
+      return res.status(400).send("Something went wrong");
+    }
+  }
 }

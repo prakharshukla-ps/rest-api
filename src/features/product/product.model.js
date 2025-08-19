@@ -2,82 +2,13 @@ import ApplicationError from "../../error-handler/applicationError.js";
 import UserModel from "../user/user.model.js";
 
 export default class ProductModel {
-  constructor(id, name, desc, imageUrl, category, price, sizes) {
-    this.id = id;
+  constructor(name, desc, imageUrl, category, price, sizes) {
     this.name = name;
     this.desc = desc;
     this.imageUrl = imageUrl;
     this.category = category;
     this.price = price;
     this.sizes = sizes;
-  }
-
-  static getAllProducts() {
-    return products;
-  }
-
-  static addProduct(product) {
-    const { name, desc, imageUrl, category, price, sizes } = product;
-
-    const newProduct = new ProductModel(
-      products.length + 1,
-      name,
-      desc,
-      imageUrl,
-      category,
-      price,
-      sizes
-    );
-
-    products.push(newProduct);
-
-    return newProduct;
-  }
-
-  static getSingleProduct(id) {
-    const product = products.find((product) => product.id == id);
-
-    return product;
-  }
-
-  static filterProducts(minPrice, maxPrice, category) {
-    const filteredProducts = products.filter(
-      (product) =>
-        (!minPrice || product.price >= minPrice) &&
-        (!maxPrice || product.price <= maxPrice) &&
-        (!category || product.category == category)
-    );
-
-    return filteredProducts;
-  }
-
-  static rateProduct(userId, productId, rating) {
-    const user = UserModel.getAllUsers().find((user) => user.id == userId);
-
-    if (!user) {
-      throw new ApplicationError("User not found", 404);
-    }
-
-    const product = products.find((product) => product.id == productId);
-
-    if (!product) {
-      throw new ApplicationError("Product not found", 400);
-    }
-
-    if (!product.ratings) {
-      product.ratings = [];
-      product.ratings.push({ userId, rating });
-    } else {
-      const existingRatingIndex = product.ratings.findIndex(
-        (rating) => rating.userId == userId
-      );
-
-      if (existingRatingIndex >= 0) {
-        product.ratings[existingRatingIndex] = { userId, rating };
-      } else {
-        product.ratings.push({ userId, rating });
-      }
-    }
   }
 }
 
