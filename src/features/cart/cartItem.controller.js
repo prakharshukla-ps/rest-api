@@ -1,30 +1,49 @@
-import CartItemModel from "./cartItem.model.js";
+import CartItemRepository from "./cartItem.repository.js";
 
 export default class CartItemController {
-  addItem(req, res) {
-    const { productId, quantity } = req.query;
-    const { userId } = req;
-
-    CartItemModel.addItem(productId, userId, quantity);
-
-    res.status(200).send("Cart item updated");
+  constructor() {
+    this.cartItemRepository = new CartItemRepository();
   }
 
-  getAllCartItems(req, res) {
-    const { userId } = req;
+  async addItem(req, res) {
+    try {
+      const { productId, quantity } = req.body;
+      const { userId } = req;
 
-    const allCartItems = CartItemModel.getAllCartItems(userId);
+      await this.cartItemRepository.addItem(productId, userId, quantity);
 
-    res.status(200).send(allCartItems);
+      res.status(201).send("Cart updated successfully");
+    } catch (error) {
+      console.log(error);
+      return res.status(400).send("Something went wrong");
+    }
   }
 
-  deleteCartItem(req, res) {
+  async getAllCartItems(req, res) {
+    try {
+      const { userId } = req;
+
+      const allCartItems = await this.cartItemRepository.getAllCartItems(
+        userId
+      );
+
+      res.status(200).send(allCartItems);
+    } catch (error) {
+      console.log(error);
+      return res.status(400).send("Something went wrong");
+    }
+  }
+
+  async deleteCartItem(req, res) {
     const { cartItemId } = req.params;
     const { userId } = req;
 
-    const error = CartItemModel.deleteCartItem(cartItemId, userId);
+    const isDeleted = await this.cartItemRepository.deleteCartItem(
+      cartItemId,
+      userId
+    );
 
-    if (error) {
+    if (!isDeleted) {
       return res.status(400).send(error);
     } else {
       return res.status(200).send("Cart item deleted");

@@ -72,13 +72,55 @@ export default class ProductRepository {
     }
   }
 
+  //   async rateProduct(userId, productId, rating) {
+  //     try {
+  //       const db = getDB();
+
+  //       const collection = db.collection(this.collection);
+
+  //       const product = await collection.findOne({
+  //         _id: new ObjectId(productId),
+  //       });
+
+  //       const userRating = product?.ratings?.find(
+  //         (rating) => rating.userId == userId
+  //       );
+
+  //       if (userRating) {
+  //         await collection.updateOne(
+  //           {
+  //             _id: new ObjectId(productId),
+  //             "ratings.userId": new ObjectId(userId),
+  //           },
+  //           {
+  //             $set: {
+  //               "ratings.$.rating": rating,
+  //             },
+  //           }
+  //         );
+  //       } else {
+  //         await collection.updateOne(
+  //           { _id: new ObjectId(productId) },
+  //           { $push: { ratings: { userId: new ObjectId(userId), rating } } }
+  //         );
+  //       }
+  //     } catch (err) {
+  //       throw new ApplicationError("Something went wrong with database", 500);
+  //     }
+  //   }
+
   async rateProduct(userId, productId, rating) {
     try {
       const db = getDB();
 
       const collection = db.collection(this.collection);
 
-      collection.updateOne(
+      await collection.updateOne(
+        { _id: new ObjectId(productId) },
+        { $pull: { ratings: { userId: new ObjectId(userId) } } }
+      );
+
+      await collection.updateOne(
         { _id: new ObjectId(productId) },
         { $push: { ratings: { userId: new ObjectId(userId), rating } } }
       );
