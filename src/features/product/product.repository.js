@@ -115,15 +115,20 @@ export default class ProductRepository {
 
       const collection = db.collection(this.collection);
 
-      await collection.updateOne(
-        { _id: new ObjectId(productId) },
-        { $pull: { ratings: { userId: new ObjectId(userId) } } }
+      const result = await collection.updateOne(
+        {
+          _id: new ObjectId(productId),
+          "ratings.userId": new ObjectId(userId),
+        },
+        { $set: { "ratings.$.rating": rating } }
       );
 
-      await collection.updateOne(
-        { _id: new ObjectId(productId) },
-        { $push: { ratings: { userId: new ObjectId(userId), rating } } }
-      );
+      if (result.matchedCount == 0) {
+        await collection.updateOne(
+          { _id: new ObjectId(productId) },
+          { $push: { ratings: { userId: new ObjectId(userId), rating } } }
+        );
+      }
     } catch (err) {
       throw new ApplicationError("Something went wrong with database", 500);
     }

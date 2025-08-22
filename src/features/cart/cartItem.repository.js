@@ -12,11 +12,16 @@ export default class CartItemRepository {
 
       const collection = db.collection(this.collection);
 
-      await collection.insertOne({
-        productId: new ObjectId(productId),
-        userId: new ObjectId(userId),
-        quantity,
-      });
+      const id = await this.getNextCounter(db);
+
+      await collection.updateOne(
+        {
+          productId: new ObjectId(productId),
+          userId: new ObjectId(userId),
+        },
+        { $setOnInsert: { _id: id }, $inc: { quantity: quantity } },
+        { upsert: true }
+      );
     } catch (err) {
       throw new ApplicationError("Something went wrong with database", 500);
     }
@@ -53,14 +58,17 @@ export default class CartItemRepository {
     } catch (err) {
       throw new ApplicationError("Something went wrong with database", 500);
     }
-    const cartItemIndex = cartItems.findIndex(
-      (cartItem) => cartItem.id == cartItemId && cartItem.userId == userId
-    );
+  }
 
-    if (cartItemIndex == -1) {
-      return "Item not found";
-    } else {
-      cartItems.splice(cartItemIndex, 1);
-    }
+  async getNextCounter(db) {
+    const counter = await db
+      .collection("counters")
+      .findOneAndUpdate(
+        { _id: "cartItemId" },
+        { $inc: { value: 1 } },
+        { returnDocument: "after" }
+      );
+
+    return counter.value;
   }
 }
