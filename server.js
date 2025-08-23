@@ -6,6 +6,7 @@ import express from "express";
 import { connectToMongoDB } from "./src/config/mongodb.js";
 import ApplicationError from "./src/error-handler/applicationError.js";
 import cartItemRouter from "./src/features/cart/cartItem.routes.js";
+import orderRouter from "./src/features/order/order.routes.js";
 import productRouter from "./src/features/product/product.routes.js";
 import userRouter from "./src/features/user/user.routes.js";
 import jwtAuth from "./src/middlewares/jwtAuth.middleware.js";
@@ -39,6 +40,7 @@ server.use(loggerWinstonMiddleware);
 // server.use("/api-docs", swagger.serve, swagger.setup(apiDocs));
 server.use("/api/products", jwtAuth, productRouter);
 server.use("/api/cartItems", jwtAuth, cartItemRouter);
+server.use("/api/orders", jwtAuth, orderRouter);
 server.use("/api/users", userRouter);
 
 server.get("/", (req, res) => {

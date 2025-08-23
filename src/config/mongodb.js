@@ -15,6 +15,8 @@ export const connectToMongoDB = () => {
     .catch((err) => console.log(err));
 };
 
+export const getClient = () => client;
+
 export const getDB = () => client.db();
 
 const createCounter = async (db) => {
