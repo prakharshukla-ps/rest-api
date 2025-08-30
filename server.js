@@ -4,15 +4,16 @@ import cors from "cors";
 import express from "express";
 
 // import { connectToMongoDB } from "./src/config/mongodb.js";
+import mongoose from "mongoose";
 import { connectUsingMongoose } from "./src/config/mongooseConfig.js";
 import ApplicationError from "./src/error-handler/applicationError.js";
 import cartItemRouter from "./src/features/cart/cartItem.routes.js";
+import likeRouter from "./src/features/like/like.routes.js";
 import orderRouter from "./src/features/order/order.routes.js";
 import productRouter from "./src/features/product/product.routes.js";
 import userRouter from "./src/features/user/user.routes.js";
 import jwtAuth from "./src/middlewares/jwtAuth.middleware.js";
 import loggerWinstonMiddleware from "./src/middlewares/logger-winston.middleware.js";
-import mongoose from "mongoose";
 // import apiDocs from "./swagger.json" with { type: "json" };
 
 const server = express();
@@ -43,6 +44,7 @@ server.use(loggerWinstonMiddleware);
 server.use("/api/products", jwtAuth, productRouter);
 server.use("/api/cartItems", jwtAuth, cartItemRouter);
 server.use("/api/orders", jwtAuth, orderRouter);
+server.use("/api/likes", jwtAuth, likeRouter);
 server.use("/api/users", userRouter);
 
 server.get("/", (req, res) => {

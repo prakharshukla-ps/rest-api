@@ -1,21 +1,38 @@
 import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 import { getDB } from "../../config/mongodb.js";
 import ApplicationError from "../../error-handler/applicationError.js";
+import { ProductSchema } from "./product.schema.js";
+import { ReviewSchema } from "./review.schema.js";
+import { CategorySchema } from "./category.schema.js";
 
+const ProductModel = mongoose.model("Product", ProductSchema);
+const ReviewModel = mongoose.model("Review", ReviewSchema);
+const CategoryModel = mongoose.model("Category", CategorySchema);
 export default class ProductRepository {
   constructor() {
-    this.collection = "products";
+    this.collection = "Product";
   }
 
-  async addProduct(newProduct) {
+  async addProduct(productData) {
     try {
-      const db = getDB();
+      productData.categories = productData.category
+        .split(",")
+        .map((category) => category.trim());
+      const newProduct = new ProductModel(productData);
+      const savedProduct = await newProduct.save();
 
-      const collection = db.collection(this.collection);
+      await CategoryModel.updateMany(
+        { _id: { $in: productData.categories } },
+        { $push: { products: savedProduct._id } }
+      );
+      // const db = getDB();
 
-      await collection.insertOne(newProduct);
+      // const collection = db.collection(this.collection);
 
-      return newProduct;
+      // await collection.insertOne(newProduct);
+
+      // return newProduct;
     } catch (err) {
       throw new ApplicationError("Something went wrong with database", 500);
     }
@@ -116,25 +133,58 @@ export default class ProductRepository {
   //     }
   //   }
 
+  // async rateProduct(userId, productId, rating) {
+  //   try {
+  //     const db = getDB();
+
+  //     const collection = db.collection(this.collection);
+
+  //     const result = await collection.updateOne(
+  //       {
+  //         _id: new ObjectId(productId),
+  //         "ratings.userId": new ObjectId(userId),
+  //       },
+  //       { $set: { "ratings.$.rating": rating } }
+  //     );
+
+  //     if (result.matchedCount == 0) {
+  //       await collection.updateOne(
+  //         { _id: new ObjectId(productId) },
+  //         { $push: { ratings: { userId: new ObjectId(userId), rating } } }
+  //       );
+  //     }
+  //   } catch (err) {
+  //     throw new ApplicationError("Something went wrong with database", 500);
+  //   }
+  // }
+
   async rateProduct(userId, productId, rating) {
     try {
-      const db = getDB();
+      const productToUpdate = await ProductModel.findById(productId);
 
-      const collection = db.collection(this.collection);
+      if (!productToUpdate) {
+        throw new Error("Product not found!");
+      }
 
-      const result = await collection.updateOne(
-        {
-          _id: new ObjectId(productId),
-          "ratings.userId": new ObjectId(userId),
-        },
-        { $set: { "ratings.$.rating": rating } }
-      );
+      const userReview = await ReviewModel.findOne({
+        productId: productId,
+        userId: userId,
+      });
 
-      if (result.matchedCount == 0) {
-        await collection.updateOne(
-          { _id: new ObjectId(productId) },
-          { $push: { ratings: { userId: new ObjectId(userId), rating } } }
-        );
+      if (userReview) {
+        userReview.rating = rating;
+        await userReview.save();
+      } else {
+        const newReview = new ReviewModel({
+          productId: productId,
+          userId: userId,
+          rating,
+        });
+
+        await newReview.save();
+
+        productToUpdate.reviews.push(newReview._id);
+        await productToUpdate.save();
       }
     } catch (err) {
       throw new ApplicationError("Something went wrong with database", 500);

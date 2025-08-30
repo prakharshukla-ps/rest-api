@@ -3,7 +3,7 @@ import { getDB } from "../../config/mongodb.js";
 
 export default class CartItemRepository {
   constructor() {
-    this.collection = "cartItems";
+    this.collection = "CartItem";
   }
 
   async addItem(productId, userId, quantity) {

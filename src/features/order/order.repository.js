@@ -5,7 +5,7 @@ import OrderModel from "./order.model.js";
 
 export default class OrderRepository {
   constructor() {
-    this.collection = "orders";
+    this.collection = "Order";
   }
 
   async placeOrder(userId) {
